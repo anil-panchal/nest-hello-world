@@ -21,3 +21,17 @@ jobs:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ secrets.AWS_REGION }}
+    
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@62f4f872db3836360b72999f4b87f1ff13310f3a
+      
+    - name: Build, tag and push image to Amazon ECR
+       id: build-image
+       env:
+        IMAGE_TAG: ${{ github.sha }}
+       run: |
+        aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/u9m1e6h1
+        docker build -t helloworldrepsitory:$IMAGE_TAG .
+        docker tag helloworldrepository:latest public.ecr.aws/u9m1e6h1/helloworldrepository:$IMAGE_TAG
+        docker push public.ecr.aws/u9m1e6h1/helloworldrepository:$IMAGE_TAG
