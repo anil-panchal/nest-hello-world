@@ -1,2 +1,0 @@
-Access key ID	Secret access key
-AKIAQELFQW5M2M4HQZ65	BBvR6RtEvG0xlO0yLvk5JZJnCfJ8hMnyZffqcnXZ
