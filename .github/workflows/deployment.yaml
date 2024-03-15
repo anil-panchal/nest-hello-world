@@ -5,6 +5,9 @@ on:
   branches:
    - main
 
+env:
+ AWS_REPOSITORY: helloworldrepository
+
 jobs:
  deploy:
   name: Deploy
@@ -24,18 +27,18 @@ jobs:
     
     - name: Login to Amazon ECR
       id: login-ecr
-      uses: aws-actions/amazon-ecr-login@62f4f872db3836360b72999f4b87f1ff13310f3a
+      uses: aws-actions/amazon-ecr-login@v1
       
     - name: Build, tag and push image to Amazon ECR
       id: build-image
       env:
        IMAGE_TAG: ${{ github.sha }}
       run: |
-       aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/u9m1e6h1
+       aws ecr-public get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin {{ secretes.AWS_ECR }}
        docker build -t helloworldrepository:$IMAGE_TAG .
-       docker tag helloworldrepository:$IMAGE_TAG public.ecr.aws/u9m1e6h1/helloworldrepository:$IMAGE_TAG
-       docker push public.ecr.aws/u9m1e6h1/helloworldrepository:$IMAGE_TAG
-       echo "::set-output name=image::public.ecr.aws/u9m1e6h1/helloworldrepository:$IMAGE_TAG"
+       docker tag helloworldrepository:$IMAGE_TAG {{ secretes.AWS_ECR }}/helloworldrepository:$IMAGE_TAG
+       docker push {{ secretes.AWS_ECR }}/helloworldrepository:$IMAGE_TAG
+       echo "::set-output name=image::{{ secretes.AWS_ECR }}/helloworldrepository:$IMAGE_TAG"
 
     - name: Download task definition
       run: |
