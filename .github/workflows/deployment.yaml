@@ -7,6 +7,9 @@ on:
 
 env:
  AWS_REPOSITORY: helloworldrepository
+ ECS_CLUSTER: helloworldcluster 
+ ECS_SERVICE: helloworldserivce  
+#  ECS_TASK_DEFINITION: MY_ECS_TASK_DEFINITION
 
 jobs:
  deploy:
@@ -34,11 +37,11 @@ jobs:
       env:
        IMAGE_TAG: ${{ github.sha }}
       run: |
-       aws ecr-public get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin {{ secretes.AWS_ECR }}
-       docker build -t helloworldrepository:$IMAGE_TAG .
-       docker tag helloworldrepository:$IMAGE_TAG {{ secretes.AWS_ECR }}/helloworldrepository:$IMAGE_TAG
-       docker push {{ secretes.AWS_ECR }}/helloworldrepository:$IMAGE_TAG
-       echo "::set-output name=image::{{ secretes.AWS_ECR }}/helloworldrepository:$IMAGE_TAG"
+       aws ecr-public get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin {{ secrets.AWS_ECR }}
+       docker build -t $AWS_REPOSITORY:$IMAGE_TAG .
+       docker tag $AWS_REPOSITORY:$IMAGE_TAG {{ secrets.AWS_ECR }}/$AWS_REPOSITORY:$IMAGE_TAG
+       docker push {{ secrets.AWS_ECR }}/$AWS_REPOSITORY:$IMAGE_TAG
+       echo "::set-output name=image::{{ secrets.AWS_ECR }}/$AWS_REPOSITORY:$IMAGE_TAG"
 
     - name: Download task definition
       run: |
@@ -55,7 +58,7 @@ jobs:
       run: cat task-definition.json
 
     - name: Deploy Amazon ECS task definition
-      uses: aws-actions/amazon-ecs-deploy-task-definition@df9643053eda01f169e64a0e60233aacca83799a
+      uses: aws-actions/amazon-ecs-deploy-task-definition@dv1
       with:
         task-definition: task-definition.json
         service: ${{ env.ECS_SERVICE }}
@@ -63,4 +66,4 @@ jobs:
     
     - name: Force redeploy
       run: |
-       aws ecs update-service --cluster $ECS_CLUSTER --service $ECS_SERVICE  --region us-east-1 --force-new-deployment
+       aws ecs update-service --cluster $ECS_CLUSTER --service $ECS_SERVICE  --region ${{ secrets.AWS_REGION }} --force-new-deployment
